@@ -7,7 +7,11 @@ from django.http import Http404
 # Create your views here.
 def index(request):
     """The home page for learning log."""
-    return render(request, 'learning_logs/index.html')
+    # If user is logged in, redirect to topics page.
+    if request.user.is_authenticated:
+        return redirect('learning_logs:topics')
+    else:
+        return render(request, 'learning_logs/index.html')
 
 def check_topic_owner(request, topic):
     """Check that the topic is associated to the logged in user."""
@@ -54,7 +58,7 @@ def new_topic(request):
 @login_required
 def new_entry(request, topic_id):
     """Add a new entry for a particular topic."""
-    topic = Topic.objects.get(id=topic_id)
+    topic = get_object_or_404(Topic, id=topic_id)
     check_topic_owner(request, topic)
 
     if request.method != 'POST':
@@ -76,7 +80,7 @@ def new_entry(request, topic_id):
 @login_required
 def edit_entry(request, entry_id):
     """Edit an existing entry."""
-    entry = Entry.objects.get(id=entry_id)
+    entry = get_object_or_404(Entry, id=entry_id)
     topic = entry.topic
     check_topic_owner(request, topic)
 
